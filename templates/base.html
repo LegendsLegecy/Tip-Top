@@ -1,0 +1,244 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Tip Top{% endblock %}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
+    <!-- Local CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=3.0" />
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="{{ url_for('dashboard') }}" class="logo" style="text-decoration: none;">
+          <div class="logo-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <span class="logo-text">Tip Top</span>
+        </a>
+        <button class="toggle-btn" id="toggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <ul class="nav-menu">
+        <li class="nav-item active">
+          <a href="{{ url_for('dashboard') }}" class="nav-link">
+            <span class="nav-icon"><i class="fas fa-home"></i></span>
+            <span class="nav-link-text">Dashboard</span>
+            <span class="tooltip">Dashboard</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a href="{{ url_for('coin_price_graph') }}" class="nav-link">
+            <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+            <span class="nav-link-text">Price Graph</span>
+            <span class="tooltip">Price Graph</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon"><i class="fas fa-wallet"></i></span>
+            <span class="nav-link-text">Wallet</span>
+            <span class="tooltip">Wallet</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon"><i class="fas fa-ad"></i></span>
+            <span class="nav-link-text">Watch Ads</span>
+            <span class="tooltip">Watch Ads</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon"
+              ><i class="fas fa-file-invoice-dollar"></i
+            ></span>
+            <span class="nav-link-text">Billing</span>
+            <span class="tooltip">Billing</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon"><i class="fas fa-exchange-alt"></i></span>
+            <span class="nav-link-text">Transactions</span>
+            <span class="tooltip">Transactions</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon"><i class="fas fa-gift"></i></span>
+            <span class="nav-link-text">Redeem</span>
+            <span class="tooltip">Redeem</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Wallet Balance -->
+      <div class="wallet-balance">
+        <div class="wallet-label">Wallet Balance</div>
+        <div class="wallet-amount">{{coins}}</div>
+        <div class="wallet-conversion">≈ ${{ "%.2f"|format(coins) }}</div>
+        <button class="redeem-btn">Redeem Now</button>
+      </div>
+    </aside>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Header -->
+      <header class="header">
+        <button class="mobile-menu-btn" id="headerMobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="page-title" style="position: relative; left: 40px;">
+          {% block page_title %}
+          {% endblock %}
+        </div>
+        <div class="header-actions">
+          <button class="theme-toggle-btn" id="themeToggle" title="Toggle Theme">
+            <i class="fas fa-sun" id="themeIcon"></i>
+          </button>
+                  <a href="{{ url_for('logout_view') }}" class="logout-btn" id="logoutBtn" title="Logout" style="text-decoration: none;">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+          <div class="user-profile">
+            <div class="user-avatar">{{ usrname[:1]|upper }}</div>
+            <span class="user-name">{{usrname}}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      {% block content %}
+      <!-- This block will be filled by child templates -->
+      {% endblock %}
+    </main>
+
+    <!-- Common JavaScript -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Sidebar functionality
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        const toggleBtn = document.getElementById("toggleSidebar");
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+        function toggleSidebar() {
+          sidebar.classList.toggle("sidebar-collapsed");
+          mainContent.classList.toggle("main-content-collapsed");
+          
+          // Update toggle button icon
+          const toggleIcon = toggleBtn.querySelector('i');
+          if (sidebar.classList.contains("sidebar-collapsed")) {
+            toggleIcon.className = 'fas fa-bars'; // Show hamburger menu when closed
+          } else {
+            toggleIcon.className = 'fas fa-times'; // Show X when open
+          }
+        }
+
+        function initSidebar() {
+          // Check if sidebar should be collapsed on mobile
+          if (window.innerWidth <= 992) {
+            sidebar.classList.add("sidebar-collapsed");
+            mainContent.classList.add("main-content-collapsed");
+          }
+          
+          // Set initial toggle button icon
+          const toggleIcon = toggleBtn.querySelector('i');
+          if (sidebar.classList.contains("sidebar-collapsed")) {
+            toggleIcon.className = 'fas fa-bars'; // Show hamburger menu when closed
+          } else {
+            toggleIcon.className = 'fas fa-times'; // Show X when open
+          }
+        }
+
+        // Event listeners
+        if (toggleBtn) toggleBtn.addEventListener("click", toggleSidebar);
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener("click", toggleSidebar);
+        if (document.getElementById("headerMobileMenuBtn")) {
+          document.getElementById("headerMobileMenuBtn").addEventListener("click", toggleSidebar);
+        }
+        if (sidebarOverlay) sidebarOverlay.addEventListener("click", toggleSidebar);
+
+        // Initialize sidebar on load
+        initSidebar();
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+        const body = document.body;
+        
+        if (themeToggle && themeIcon) {
+          // Check for saved theme preference or default to dark
+          const currentTheme = localStorage.getItem('theme') || 'dark';
+          body.setAttribute('data-theme', currentTheme);
+          updateThemeIcon(currentTheme);
+          
+          themeToggle.addEventListener("click", () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+          });
+          
+          function updateThemeIcon(theme) {
+            if (theme === 'light') {
+              themeIcon.className = 'fas fa-moon';
+            } else {
+              themeIcon.className = 'fas fa-sun';
+            }
+          }
+        }
+
+        // Logout button
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            // Add your logout logic here
+            alert("Logging out...");
+            // window.location.href = '/logout';
+          });
+        }
+      });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

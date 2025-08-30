@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Example Page | Tip Top{% endblock %}
+
+{% block page_title %}
+<h1><i class="fas fa-star text-primary"></i> Example Page</h1>
+<p>This is an example of how easy it is to create new pages!</p>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Welcome to Your New Page</h3>
+                </div>
+                <div class="card-body">
+                    <p>This page demonstrates the power of Django template inheritance:</p>
+                    <ul>
+                        <li>✅ Same header and sidebar on every page</li>
+                        <li>✅ Easy to change page titles</li>
+                        <li>✅ Consistent styling and navigation</li>
+                        <li>✅ No code duplication</li>
+                        <li>✅ Easy to maintain and update</li>
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <h4>How to create a new page:</h4>
+                        <ol>
+                            <li>Create a new template file</li>
+                            <li>Extend the base template: <code>{% extends 'base.html' %}</code></li>
+                            <li>Override the blocks you need:
+                                <ul>
+                                    <li><code>{% block title %}</code> - Page title</li>
+                                    <li><code>{% block page_title %}</code> - Header content</li>
+                                    <li><code>{% block content %}</code> - Main content</li>
+                                    <li><code>{% block extra_css %}</code> - Additional CSS</li>
+                                    <li><code>{% block extra_js %}</code> - Additional JavaScript</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        margin: 0;
+        padding: 0;
+        max-width: none;
+    }
+    
+    .card {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+    }
+    
+    .card-title {
+        color: var(--text-color);
+    }
+    
+    .card-body {
+        color: var(--text-color);
+    }
+    
+    code {
+        background: rgba(135, 206, 235, 0.2);
+        color: var(--primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+    
+    ul, ol {
+        color: var(--text-color);
+    }
+    
+    li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}

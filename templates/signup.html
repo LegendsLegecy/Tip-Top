@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip Top | Log In</title>
+
+    <!-- External CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Bootstrap JS (for dismissible alerts) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Local CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='signup.css') }}?v=2.0">
+
+    <style>
+        .custom-alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1050;
+            width: auto;
+            min-width: 300px;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .password-error {
+            color: var(--red);
+            font-size: 0.8rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert custom-alert 
+              {% if category == 'success' %}alert-success
+              {% elif category == 'error' %}alert-danger
+              {% elif category == 'warning' %}alert-warning
+              {% else %}alert-info{% endif %} 
+              alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div id="loader" style="
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.38);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    ">
+      <div class="spinner-border text-primary" role="status" style="width: 5rem; height: 5rem;">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <div class="container form-active" id="mainContainer">
+        <div class="sections-wrapper">
+            <!-- Left Section -->
+            <div class="left-section">
+                <!-- Signup Content (Hidden by default) -->
+                <div class="content-section signup-content" style="opacity: 0; pointer-events: none;">
+                    <div class="logo">
+                        <div class="logo-icon"><i class="fas fa-coins"></i></div>
+                        <div class="logo-text">Tip Top</div>
+                    </div>
+                    <h1>Start Earning <br>On Your Terms</h1>
+                    <p class="subtitle">Join thousands of freelancers and businesses making money on their own schedule.</p>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="feature-text">View your complete earning history</div>
+                        </div>
+                        
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="feature-text">Manage your payment methods</div>
+                        </div>
+                        
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="feature-text">Track upcoming payouts</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Login Content (Visible by default) -->
+                <div class="content-section login-content" style="opacity: 1; pointer-events: all;">
+                </div>
+            </div>
+
+            <!-- Right Section -->
+            <div class="right-section">
+                <div class="form-container">
+                    <!-- Signup Form (Hidden by default) -->
+                    <div class="signup-form glow" style="opacity: 0; pointer-events: none; transform: translateX(-30%);">
+                        <h2 class="animate__animated animate__fadeIn">Create Your Account</h2>
+                              <form id="signupForm" method='POST'>
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" name='username' class="form-control" placeholder="Full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name='email' class="form-control" placeholder="Email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" name='password1' id="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">Confirm Password</label>
+                                <input type="password" name='password2' id="confirm-password" class="form-control" placeholder="Confirm password" required>
+                                <br><div id="passwordError" class="password-error">Passwords do not match!</div>
+                            </div>
+                            <button type="submit" class="btn pulse"><span class="btn-text">Sign Up Free</span></button>
+                        </form>
+                        <div class="divider">OR</div>
+                        <div class="social-login">
+                        <a href="{% provider_login_url 'google' %}" class="social-btn"  style="text-decoration: none;" onmouseover="this.style.color='white'">
+                            <i class="fab fa-google"></i> Google
+                        </a>
+
+   
+                        </div>
+                        <p class="toggle-form">Already have an account? <a id="showLogin" style="color: var(--primary-light);">Log in</a></p>
+                    </div>
+
+                    <!-- Login Form (Visible by default) -->
+                    <div class="login-form glow" style="opacity: 1; pointer-events: all; transform: translateX(0);">
+                        <h2 class="animate__animated animate__fadeIn">Welcome Back to Tip Top</h2>
+                              <form id="loginForm" method='POST'>
+                            <div class="form-group"><label for="login-email">Email</label><input type="email" id="login-email" name='login-email' class="form-control" placeholder="Email" required></div>
+                            <div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" name='login-password' class="form-control" placeholder="Password" required></div>
+                            <div class="form-group"><a href="/forgot-password" style="display: block; text-align: right; font-size: 0.8rem; color: var(--primary-light);">Forgot password?</a></div>
+                            <button type="submit" class="btn pulse"><span class="btn-text">Log In</span></button>
+                        </form>
+                        <div class="divider">OR</div>
+                        <div class="social-login">
+                        <a href="{% provider_login_url 'google' %}" class="social-btn"  style="text-decoration: none;" onmouseover="this.style.color='white'">
+                            <i class="fab fa-google"></i> Google
+                        </a>
+
+                        </div>
+                        <p class="toggle-form">Don't have an account? <a id="showSignup" style="color: var(--primary-light);">Sign up</a></p>
+                    </div>
+                </div>
+
+                <div class="floating-elements">
+                    <div class="floating-element"></div>
+                    <div class="floating-element"></div>
+                    <div class="floating-element"></div>
+                </div>
+            </div>
+
+            <!-- Login Text on Right Side (Initially Visible) -->
+            <div class="login-text-right" style="display: block; opacity: 1; transition: opacity 0.5s;">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fas fa-coins"></i></div>
+                                            <div class="logo-text">Tip Top</div>
+                </div>
+                                    <h2>Welcome Back to <br>Tip Top</h2>
+                <p class="subtitle">Continue your journey with confidence.<br>Access your dashboard and insights easily.</p>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon"><i class="fas fa-briefcase"></i></div>
+                        <div class="feature-text">Manage your ongoing freelance projects</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+                        <div class="feature-text">Analyze earnings with advanced insights</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon"><i class="fas fa-unlock-alt"></i></div>
+                        <div class="feature-text">Secure and private access to your data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Form switching logic
+            const showLogin = document.getElementById('showLogin');
+            const showSignup = document.getElementById('showSignup');
+            const container = document.getElementById('mainContainer');
+            const signupContent = document.querySelector('.signup-content');
+            const loginContent = document.querySelector('.login-content');
+            const signupForm = document.querySelector('.signup-form');
+            const loginForm = document.querySelector('.login-form');
+            const loginTextRight = document.querySelector('.login-text-right');
+
+            showLogin.addEventListener('click', function (e) {
+                e.preventDefault();
+                container.classList.add('form-active');
+                signupContent.style.opacity = '0';
+                signupContent.style.pointerEvents = 'none';
+                loginContent.style.opacity = '1';
+                loginContent.style.pointerEvents = 'all';
+                signupForm.style.opacity = '0';
+                signupForm.style.transform = 'translateX(-30%)';
+                signupForm.style.pointerEvents = 'none';
+                loginForm.style.opacity = '1';
+                loginForm.style.transform = 'translateX(0)';
+                loginForm.style.pointerEvents = 'all';
+                loginTextRight.style.display = 'block';
+                setTimeout(() => loginTextRight.style.opacity = '1', 100);
+            });
+
+            showSignup.addEventListener('click', function (e) {
+                e.preventDefault();
+                container.classList.remove('form-active');
+                signupContent.style.opacity = '1';
+                signupContent.style.pointerEvents = 'all';
+                loginContent.style.opacity = '0';
+                loginContent.style.pointerEvents = 'none';
+                signupForm.style.opacity = '1';
+                signupForm.style.transform = 'translateX(0)';
+                signupForm.style.pointerEvents = 'all';
+                loginForm.style.opacity = '0';
+                loginForm.style.transform = 'translateX(30%)';
+                loginForm.style.pointerEvents = 'none';
+                loginTextRight.style.opacity = '0';
+                setTimeout(() => loginTextRight.style.display = 'none', 500);
+            });
+
+            // Password matching validation
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm-password');
+            const passwordError = document.getElementById('passwordError');
+            const signupFormElement = document.getElementById('signupForm');
+
+            function validatePasswords() {
+                if (password.value !== confirmPassword.value) {
+                    passwordError.style.display = 'block';
+                    return false;
+                } else {
+                    passwordError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            confirmPassword.addEventListener('input', validatePasswords);
+
+            // Form submission
+            signupFormElement.addEventListener('submit', function(e) {
+                if (!validatePasswords()) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.display = 'flex';
+                }
+            });
+
+            // Login form submission
+            const loginFormElement = document.getElementById('loginForm');
+            if (loginFormElement) {
+                loginFormElement.addEventListener('submit', function() {
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        loader.style.display = 'flex';
+                    }
+                });
+            }
+
+            // Auto-dismiss alerts after 4 seconds
+            setTimeout(function() {
+                let alerts = document.querySelectorAll('.custom-alert');
+                alerts.forEach(alert => {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                });
+            }, 4000);
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</body>
+</html>

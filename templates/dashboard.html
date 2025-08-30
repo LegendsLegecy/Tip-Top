@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Tip Top{% endblock %}
+
+{% block page_title %}
+<h1>Dashboard</h1>
+<p>Welcome back <strong><big>{{usrname|title}}</big></strong> ! Here's what's happening today.</p>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Cards -->
+<section class="dashboard-grid">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Total Earnings</h3>
+      <div class="card-icon primary">
+        <i class="fas fa-coins"></i>
+      </div>
+    </div>
+    <h2 class="card-value">{{coins}}</h2>
+    <p class="card-footer">
+      <i class="fas fa-arrow-up positive"></i> 12% from last week
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Ads Watched</h3>
+      <div class="card-icon accent">
+        <i class="fas fa-ad"></i>
+      </div>
+    </div>
+    <h2 class="card-value">24</h2>
+    <p class="card-footer">
+      <i class="fas fa-arrow-down negative"></i> 2% from last week
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Coin Price</h3>
+      <div class="card-icon success">
+        <i class="fas fa-chart-line"></i>
+      </div>
+    </div>
+    <h2 class="card-value">₨2.50</h2>
+    <p class="card-footer">
+      <a href="{{ url_for('coin_price_graph') }}" style="color: inherit; text-decoration: none;">
+        <i class="fas fa-arrow-up positive"></i> View Full Graph
+      </a>
+    </p>
+  </div>
+</section>
+
+<!-- Recent Activity -->
+<section class="activity-card">
+  <div class="activity-header">
+    <h3 class="activity-title">Recent Activity</h3>
+    <a href="#" class="view-all">View All</a>
+  </div>
+  <ul class="activity-list">
+    <li class="activity-item">
+      <div class="activity-icon earn">
+        <i class="fas fa-coins"></i>
+      </div>
+      <div class="activity-details">
+        <h4 class="activity-name">Ad: Product Promotion</h4>
+        <p class="activity-time">10 minutes ago</p>
+      </div>
+      <div class="activity-amount earn-amount">+25 coins</div>
+    </li>
+    <li class="activity-item">
+      <div class="activity-icon ad">
+        <i class="fas fa-ad"></i>
+      </div>
+      <div class="activity-details">
+        <h4 class="activity-name">Ad: Service Advertisement</h4>
+        <p class="activity-time">1 hour ago</p>
+      </div>
+      <div class="activity-amount earn-amount">+30 coins</div>
+    </li>
+    <li class="activity-item">
+      <div class="activity-icon ad">
+        <i class="fas fa-ad"></i>
+      </div>
+      <div class="activity-details">
+        <h4 class="activity-name">Ad: Brand Campaign</h4>
+        <p class="activity-time">2 hours ago</p>
+      </div>
+      <div class="activity-amount earn-amount">+20 coins</div>
+    </li>
+    <li class="activity-item">
+      <div class="activity-icon ad">
+        <i class="fas fa-ad"></i>
+      </div>
+      <div class="activity-details">
+        <h4 class="activity-name">Ad: Product Promotion</h4>
+        <p class="activity-time">3 hours ago</p>
+      </div>
+      <div class="activity-amount earn-amount">+25 coins</div>
+    </li>
+  </ul>
+</section>
+{% endblock %}

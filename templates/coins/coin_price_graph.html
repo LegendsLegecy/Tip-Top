@@ -1,0 +1,565 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Coin Price Graph - Tip Top{% endblock %}
+
+{% block page_title %}
+<h1 class="d-inline-flex align-items-center">
+    <i class="fas fa-chart-line me-3">&nbsp;</i>
+    <span>Coin Price Graph</span>
+</h1>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .graph-container {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="light"] .graph-container {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .graph-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .graph-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .graph-subtitle {
+        color: var(--text-color);
+        opacity: 0.7;
+        font-size: 1rem;
+    }
+    
+    .time-period {
+        text-align: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="light"] .time-period {
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .time-period .month-year {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .time-period .period-info {
+        font-size: 0.9rem;
+        color: var(--text-color);
+        opacity: 0.7;
+    }
+    
+    .price-info {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .price-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.8rem;
+        border-radius: 10px;
+        text-align: center;
+        min-width: 120px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    [data-theme="light"] .price-card {
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .price-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .price-label {
+        font-size: 0.9rem;
+        color: var(--text-color);
+        opacity: 0.7;
+        margin-bottom: 0.5rem;
+    }
+    
+    .price-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .chart-container {
+        width: 100%;
+        height: 400px;
+        margin: 2rem 0;
+        position: relative;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px;
+    }
+    
+    [data-theme="light"] .chart-container {
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    #priceChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    .trend-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="light"] .trend-indicator {
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .trend-icon {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+    }
+    
+    .trend-text {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+    
+    .trend-up {
+        color: #4CAF50;
+    }
+    
+    .trend-down {
+        color: #f44336;
+    }
+    
+    .trend-stable {
+        color: #FF9800;
+    }
+    
+    .week-selector {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="light"] .week-selector {
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .week-label {
+        font-weight: 500;
+        color: var(--text-color);
+        margin: 0;
+    }
+    
+    .week-dropdown {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--text-color);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    [data-theme="light"] .week-dropdown {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+    
+    .week-dropdown:hover {
+        border-color: var(--primary);
+    }
+    
+    .week-dropdown:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(135, 206, 235, 0.2);
+    }
+    
+    .week-dropdown option {
+        background: var(--card-bg);
+        color: var(--text-color);
+        padding: 0.5rem;
+    }
+    
+    .week-dropdown option:hover {
+        background: var(--primary);
+        color: #000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="graph-container">
+        <div class="graph-header">
+            <h1 class="graph-title">Coin Price vs PKR</h1>
+            <p class="graph-subtitle">Current market value of Tip Top coins in Pakistani Rupees</p>
+        </div>
+        
+        <div class="time-period">
+            <div class="month-year">August 2025</div>
+            <div class="period-info">Daily price progression for <span id="currentWeekDisplay">Week 1</span></div>
+        </div>
+        
+        <div class="price-info">
+            <div class="price-card">
+                <div class="price-label">Current Price</div>
+                <div class="price-value">₨4.00</div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">24h Change</div>
+                <div class="price-value text-success">+5.2%</div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">Market Cap</div>
+                <div class="price-value">₨125M</div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">Volume (24h)</div>
+                <div class="price-value">₨2.1M</div>
+            </div>
+        </div>
+        
+        <div class="week-selector">
+            <label for="weekSelect" class="week-label">Select Week:</label>
+            <select id="weekSelect" class="week-dropdown">
+                <option value="week1"style="background:var(--primary); color:black;">Week 1</option>
+                <option value="week2"style="background:var(--primary); color:black;">Week 2</option>
+                <option value="week3"style="background:var(--primary); color:black;">Week 3</option>
+                <option value="week4"style="background:var(--primary); color:black;">Week 4</option>
+            </select>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+        
+        <div class="trend-indicator">
+            <div class="trend-icon trend-up">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="trend-text">
+                <strong>Overall Trend:</strong> Coin price has shown strong growth over the past 4 weeks, 
+                starting at ₨1.00 and reaching ₨4.00, with consistent upward momentum.
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="graph-container">
+                <h3 class="graph-title" style="font-size: 1.4rem;">Daily Price Breakdown</h3>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="price-card">
+                            <div class="price-label">Monday</div>
+                            <div class="price-value" id="mondayPrice">₨1.00</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="price-card">
+                            <div class="price-label">Tuesday</div>
+                            <div class="price-value" id="tuesdayPrice">₨1.15</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="price-card">
+                            <div class="price-label">Wednesday</div>
+                            <div class="price-value" id="wednesdayPrice">₨1.25</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="price-card">
+                            <div class="price-label">Thursday</div>
+                            <div class="price-value" id="thursdayPrice">₨1.35</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-4">
+                        <div class="price-card">
+                            <div class="price-label">Friday</div>
+                            <div class="price-value" id="fridayPrice">₨1.45</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="price-card">
+                            <div class="price-label">Saturday</div>
+                            <div class="price-value" id="saturdayPrice">₨1.55</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="price-card">
+                            <div class="price-label">Sunday</div>
+                            <div class="price-value" id="sundayPrice">₨1.65</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="graph-container">
+                <h3 class="graph-title" style="font-size: 1.4rem;">Market Analysis</h3>
+                <div class="trend-indicator">
+                    <div class="trend-icon trend-up">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="trend-text">
+                        <strong>Daily Progression:</strong> Consistent daily growth pattern showing steady market confidence and strong fundamentals throughout the week.
+                    </div>
+                </div>
+                <div class="trend-indicator mt-3">
+                    <div class="trend-icon trend-up">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="trend-text">
+                        <strong>Week Comparison:</strong> Week 2 shows accelerated growth compared to Week 1, indicating increasing market momentum and adoption.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing chart...');
+    
+    // Wait for Chart.js to load
+    setTimeout(function() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded!');
+            return;
+        }
+        
+        console.log('Chart.js loaded successfully');
+        
+        const canvas = document.getElementById('priceChart');
+        if (!canvas) {
+            console.error('Canvas element not found!');
+            return;
+        }
+        
+        console.log('Canvas element found');
+        
+        const ctx = canvas.getContext('2d');
+        const isLightTheme = document.body.getAttribute('data-theme') === 'light';
+        const textColor = isLightTheme ? '#333333' : '#f5f5f5';
+        const gridColor = isLightTheme ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+        
+        // Week data
+        const weekData = {
+            week1: {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                data: [1.00, 1.15, 1.25, 1.35, 1.45, 1.55, 1.65]
+            },
+            week2: {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                data: [1.65, 1.75, 1.85, 1.95, 2.05, 2.25, 2.50]
+            },
+            week3: {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                data: [2.50, 2.60, 2.70, 2.80, 2.90, 3.00, 3.10]
+            },
+            week4: {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                data: [3.10, 3.25, 3.40, 3.55, 3.70, 3.85, 4.00]
+            }
+        };
+        
+        let currentWeek = 'week1';
+        
+        const priceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: weekData[currentWeek].labels,
+                datasets: [{
+                    label: 'Coin Price (PKR)',
+                    data: weekData[currentWeek].data,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#4CAF50',
+                    pointBorderColor: isLightTheme ? '#ffffff' : '#0a0a0a',
+                    pointBorderWidth: 3,
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                    pointHoverBackgroundColor: '#4CAF50',
+                    pointHoverBorderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: isLightTheme ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)',
+                        titleColor: textColor,
+                        bodyColor: textColor,
+                        borderColor: gridColor,
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return `Price: ₨${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0.5,
+                        max: 4.5,
+                        ticks: {
+                            color: textColor,
+                            callback: function(value) {
+                                return '₨' + value.toFixed(2);
+                            }
+                        },
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#4CAF50',
+                        hoverBorderColor: '#ffffff'
+                    }
+                }
+            }
+        });
+        
+        // Week selector functionality
+        const weekSelect = document.getElementById('weekSelect');
+        const currentWeekDisplay = document.getElementById('currentWeekDisplay');
+        
+        if (weekSelect) {
+            weekSelect.addEventListener('change', function() {
+                currentWeek = this.value;
+                priceChart.data.labels = weekData[currentWeek].labels;
+                priceChart.data.datasets[0].data = weekData[currentWeek].data;
+                
+                // Update the week display
+                if (currentWeekDisplay) {
+                    currentWeekDisplay.textContent = this.options[this.selectedIndex].text;
+                }
+                
+                // Update daily price breakdown
+                updateDailyPrices(currentWeek);
+                
+                priceChart.update();
+            });
+        }
+        
+        // Function to update daily price breakdown
+        function updateDailyPrices(week) {
+            const prices = weekData[week].data;
+            const dayElements = ['mondayPrice', 'tuesdayPrice', 'wednesdayPrice', 'thursdayPrice', 'fridayPrice', 'saturdayPrice', 'sundayPrice'];
+            
+            dayElements.forEach((elementId, index) => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = `₨${prices[index].toFixed(2)}`;
+                }
+            });
+        }
+        
+        // Update chart colors when theme changes
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                setTimeout(() => {
+                    const newIsLightTheme = document.body.getAttribute('data-theme') === 'light';
+                    const newTextColor = newIsLightTheme ? '#333333' : '#f5f5f5';
+                    const newGridColor = newIsLightTheme ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+                    
+                    priceChart.options.scales.y.ticks.color = newTextColor;
+                    priceChart.options.scales.x.ticks.color = newTextColor;
+                    priceChart.options.scales.y.grid.color = newGridColor;
+                    priceChart.options.scales.x.grid.color = newGridColor;
+                    priceChart.options.plugins.tooltip.backgroundColor = newIsLightTheme ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)';
+                    priceChart.options.scales.x.ticks.color = newTextColor;
+                    priceChart.options.plugins.tooltip.titleColor = newTextColor;
+                    priceChart.options.plugins.tooltip.bodyColor = newTextColor;
+                    priceChart.options.plugins.tooltip.borderColor = newGridColor;
+                    priceChart.data.datasets[0].pointBorderColor = newIsLightTheme ? '#ffffff' : '#0a0a0a';
+                    
+                    priceChart.update();
+                }, 100);
+            });
+        }
+    }, 200);
+});
+</script>
+{% endblock %}
